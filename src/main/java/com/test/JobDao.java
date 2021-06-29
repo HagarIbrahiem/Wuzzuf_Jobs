@@ -1,7 +1,7 @@
+package com.test;
 
 import java.util.List;
 
-
 public interface JobDao {
-    List<Job> GetAllJobs();
+    List<Job> ReadFromCSV(String filename);
 }

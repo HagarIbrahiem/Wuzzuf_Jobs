@@ -1,3 +1,4 @@
+package com.test;
 public class Job {
     private String Title;
     private String Company;
