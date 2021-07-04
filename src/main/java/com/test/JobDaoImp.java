@@ -101,7 +101,7 @@ public class JobDaoImp {
 		    .schema(schema)
 		    .csv(filename);
 	  
-	   System.out.println("before omitting duplicates"+df.count());
+	   System.out.println("before omittttttttttttttttttttttttttttttttttttttttttttttttting duplicates"+df.count());
 	   df  = df.distinct();
 	   System.out.println("after omitting duplicates"+df.count());
 	   return df;
