@@ -118,7 +118,6 @@ public class JobDaoImp {
 	   df  = df.distinct();
 	   System.out.println("after omitting duplicates"+df.count());
 	   return df;
-    //      return null;
    }
     
     
@@ -213,8 +212,8 @@ public class JobDaoImp {
        
         System.out.println("======= Areas ============== \n  " );
         // COUNTING
-        Map<String, Long> TitleCounts = Areas.countByValue ();
-        List<Map.Entry> sorted = TitleCounts.entrySet ().stream ()
+        Map<String, Long> AreaCounts = Areas.countByValue ();
+        List<Map.Entry> sorted = AreaCounts.entrySet ().stream ()
                 .sorted (Map.Entry.comparingByValue ()).collect (Collectors.toList ());
         // DISPLAY
         for (Map.Entry<String, Long> entry : sorted) {
@@ -224,7 +223,7 @@ public class JobDaoImp {
         //Check if Numer is not repeated , while loop
          System.out.println("======= The Most Popular Area is ( "+ sorted.get(sorted.size()-1).getKey()+" ) With Repeated times of ( "+  sorted.get(sorted.size()-1).getValue()+" ) ============== \n " );
         
-        DisplayJobAreas(sorted);
+        DisplayJobAreas(AreaCounts);
     }
     private static String extractJobArea(String AreaLine) {
         try {
@@ -236,21 +235,14 @@ public class JobDaoImp {
     }
     
     public static void DisplayJobTitles (Map<String, Long> lst){
-        System.out.println("///////////");
         List<String> Titles = new ArrayList<>();
         List<Long> Counts = new ArrayList<>();
-        int i = 0;
         for (String entry : lst.keySet()) {
-            if(i>5)
-                break;
             Titles.add(entry);
             Counts.add(lst.get(entry));
-            i++;
         }
 
-
-
-        CategoryChart chart = new CategoryChartBuilder().width(500).height(500).title("Passengers Names & Ages").
+        CategoryChart chart = new CategoryChartBuilder().width(1000).height(1000).title("Passengers Names & Ages").
                               xAxisTitle("Title").yAxisTitle("Counts").build();
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
         chart.getStyler().setHasAnnotations(true);
@@ -261,15 +253,16 @@ public class JobDaoImp {
         new SwingWrapper(chart).displayChart();
     }
     
-    public static void DisplayJobAreas (List<Map.Entry> lst){
+    public static void DisplayJobAreas (Map<String, Long> lst){
         List<String> Titles = new ArrayList<>();
-        List<Integer> Counts = new ArrayList<>();
+        List<Long> Counts = new ArrayList<>();
 
-        for (Map.Entry<String, Integer> entry : lst) {
-            Titles.add(entry.getKey());
-            Counts.add(entry.getValue());
+        for (String entry : lst.keySet()) {
+            Titles.add(entry);
+            Counts.add(lst.get(entry));
         }
-        CategoryChart chart = new CategoryChartBuilder().width(500).height(500).title("Passengers Names & Ages").
+
+        CategoryChart chart = new CategoryChartBuilder().width(1000).height(1000).title("Passengers Names & Ages").
                               xAxisTitle("Area").yAxisTitle("Counts").build();
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
         chart.getStyler().setHasAnnotations(true);

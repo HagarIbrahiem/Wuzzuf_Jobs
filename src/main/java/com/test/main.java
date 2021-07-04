@@ -29,48 +29,13 @@ public class main {
         //_JobDaoImp.Getsummary ("Wuzzuf_Jobs.csv");
         
         //Finding out the most popular job titles & Display bar chart
-        _JobDaoImp.GetPopularJobTitle();
+        //_JobDaoImp.GetPopularJobTitle();
         
         //Finding out the most popular job Areas & Display bar chart
-       // _JobDaoImp.GetPopularArea();
+        //_JobDaoImp.GetPopularArea();
        
-        List <TitanicPassenger> PasngrList = new ArrayList<TitanicPassenger>();
-        PasngrList = getPassengersFromJsonFile();
-        graphPassAges(PasngrList);
 
     }
  
-       public static List <TitanicPassenger> getPassengersFromJsonFile() {
-        List<TitanicPassenger> allPassengers = new ArrayList<TitanicPassenger> ();
-        ObjectMapper objectMapper = new ObjectMapper ();
-        objectMapper.configure (DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        try (InputStream input = new FileInputStream ("titanic_csv.json")) {
-            //Read JSON file
-            allPassengers = objectMapper.readValue (input, new TypeReference<List<TitanicPassenger>> () {
-            });
-            System.out.println("Done .......");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace ();
-        } catch (IOException e) {
-            e.printStackTrace ();
-        } 
-        return allPassengers;
-    }
-    
-    public static void graphPassAges(List <TitanicPassenger> PasngrList){
-    List<Float> pAgeslst = PasngrList.stream().map(TitanicPassenger :: getAge).limit(8).collect(Collectors.toList());
-    List<String> pNameslst = PasngrList.stream().map(TitanicPassenger :: getName).limit(8).collect(Collectors.toList());
-    
-    CategoryChart chart = new CategoryChartBuilder().width(500).height(500).title("Passengers Names & Ages").
-                          xAxisTitle("Name").yAxisTitle("Age").build();
-    chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
-    chart.getStyler().setHasAnnotations(true);
-    chart.getStyler().setStacked(true);
-    
-    chart.addSeries("Series Name : Passengers Names & Ages", pNameslst, pAgeslst);
-    
-    new SwingWrapper(chart).displayChart();
-
-    }
-
+   
 }
