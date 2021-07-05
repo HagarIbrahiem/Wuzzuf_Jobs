@@ -47,24 +47,24 @@ public  class jobService {
 		
 		return daoImp.skillsdemand(ds);
 	}
-//	@GET
-//	@Path("/jobsareas")
-//	@Produces("application/json")
-//	public Map<String,Long> getTitles() {
-//		return daoImp.GetPopularArea(ds);
-//	}
-//	@GET
-//	@Path("/jobstitles")
-//	@Produces("application/json")
-//	public Map<String,Long> getjobtiltles() {
-//		return daoImp.GetPopularJobTitle(ds);
-//	}
-//	@GET
-//	@Path("/summary")
-//	@Produces("application/json")
-//	public String[][] summary() {
-//		return daoImp.Getsummary("Wuzzuf_Jobs.csv");
-//	}
+	@GET
+	@Path("/jobsareas")
+	@Produces("application/json")
+	public Map<String,Long> getTitles() {
+		return daoImp.GetPopularArea(ds);
+	}
+	@GET
+	@Path("/jobstitles")
+	@Produces("application/json")
+	public Map<String,Long> getjobtiltles() {
+		return daoImp.GetPopularJobTitle(ds);
+	}
+	@GET
+	@Path("/summary")
+	@Produces("application/json")
+	public String[][] summary() {
+		return daoImp.Getsummary("Wuzzuf_Jobs.csv");
+	}
 	
 	
 }
