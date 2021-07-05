@@ -237,16 +237,9 @@ public class JobDaoImp {
         return pclassValues;
     }
    
-    public  void GetPopularJobTitle() throws IOException {
-        Logger.getLogger ("org").setLevel (Level.ERROR);
-        // CREATE SPARK CONTEXT
-        SparkConf conf = new SparkConf ().setAppName ("TitleCounts").setMaster ("local[3]");
-        JavaSparkContext sparkContext = new JavaSparkContext (conf);
-        // LOAD DATASETS
-        JavaRDD<String> Jobs = sparkContext.textFile ("Wuzzuf_Jobs.csv");
+    public  Map<String, Long> GetPopularJobTitle(Dataset<Row> ds) {
         // TRANSFORMATIONS
-        JavaRDD<String> titles = Jobs
-                .map (JobDaoImp::extractJobTitle)
+        JavaRDD<String> titles = ds.select("Title").javaRDD().map(m->m.getString(0))
                 .filter (StringUtils::isNotBlank);
        
         System.out.println("======= Titles ============== \n  " );
@@ -262,7 +255,8 @@ public class JobDaoImp {
         //Check if Numer is not repeated , while loop
         System.out.println("======= The Most Popular Title is ( "+ sorted.get(sorted.size()-1).getKey()+" ) With Repeated times of ( "+  sorted.get(sorted.size()-1).getValue()+" ) ============== \n " );
         
-        DisplayJobTitles(TitleCounts);
+      //  DisplayJobTitles(TitleCounts);
+        return TitleCounts;
     }
     private static String extractJobTitle(String TitleLine) {
         try {
