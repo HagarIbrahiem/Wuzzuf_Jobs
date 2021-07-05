@@ -1,10 +1,12 @@
 package com.test;
+import java.awt.Color;
 //import com.sun.rowset.internal.Row;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,6 +23,8 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
+import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.style.Styler;
 import smile.data.DataFrame;
@@ -37,7 +41,79 @@ public class JobDaoImp {
     public JobDaoImp( ) {
        
     }
+    public Map<String,Long> jobsdemand( Dataset<Row> ds){
+   	 JavaRDD<String> companys = ds.select("Company").toJavaRDD().map(m->m.getString(0))
+                .filter (StringUtils::isNotBlank);
+   	 
+   	Map<String, Long> jobCount = companys.countByValue();
+   	
+   	List<Map.Entry> jobsdemands = jobCount.entrySet ().stream ()
+   			.sorted (Map.Entry.comparingByValue ()).collect (Collectors.toList ());
+   	for(Map.Entry<String, Long> company: jobsdemands) {
+   		System.out.println(company.getKey()+": "+company.getValue());
+   	}
+   	
+   	return jobCount;
+   }
+   public Map<String,Long> skillsdemand(Dataset<Row> ds){
+   	JavaRDD<String> skills =   ds.select("Skills").toJavaRDD().map(m->m.getString(0))
+               .filter (StringUtils::isNotBlank);
+   			
 
+   	JavaRDD<String> skillsset = skills.flatMap (title -> Arrays.asList (title
+   			.toLowerCase ()
+   			.trim ()
+   			.split (",")).iterator());
+   	Map<String, Long> skillscount = skillsset.countByValue();
+   	
+   	List<Map.Entry> skillsdemand = skillscount.entrySet ().stream ()
+   			.sorted (Map.Entry.comparingByValue ()).collect (Collectors.toList ());
+    	System.out.println("sizeeeeeeeeeeeeeeeeeeeeeeelllllllllll" +skills.count());
+    	System.out.println("sizeeeeeeeeeeeeeeeeeeeeeee" +skillsset.count());
+   	for(Map.Entry<String, Long> skill: skillsdemand ) {
+   		System.out.println(skill.getKey()+": "+skill.getValue());
+   	}
+   	return skillscount;
+   }
+   public void DisplayskillsDemands(Map<String,Long> skillsdemands) {
+   	List<Double> jobscount = new ArrayList<Double>();
+   	List<String> skills = new ArrayList<String>();
+    	
+   	for(String skill: skillsdemands.keySet()) {
+   		skills.add(skill);
+   		jobscount.add(Double.valueOf(skillsdemands.get(skill)));
+   	}
+   	CategoryChart chart = new CategoryChartBuilder ().width (1024).height (768).title ("skills Histogram").xAxisTitle ("skills").yAxisTitle
+   			("job count").build ();
+   			// 2.Customize Chart
+   			chart.getStyler ().setLegendPosition(Styler.LegendPosition.InsideNW);
+   			chart.getStyler ().setHasAnnotations (true);
+   			chart.getStyler ().setStacked (true);
+   			// 3.Series
+   			chart.addSeries ("skills's count",skills, jobscount);
+   			// 4.Show it
+   			new SwingWrapper (chart).displayChart ();
+   }
+   public  void displayJobsdemands(Map<String,Long> companysjobs) {
+	    // Create Chart
+	    PieChart chart = new PieChartBuilder ().width (800).height (600).title (getClass ().getSimpleName ()).build ();
+	    // Customize Chart
+	    Color[] sliceColors = new Color[companysjobs.size()];
+	    
+	   
+	    // Series
+	    int i = 0;
+	    for(String company: companysjobs.keySet()) {
+	    	chart.addSeries (company, companysjobs.get(company));
+	    	sliceColors[i] = new Color(i%250,i*2%250,50);
+	    	i++;		
+	    	}
+	    
+	    chart.getStyler ().setSeriesColors (sliceColors);
+	    // Show it
+	    new SwingWrapper (chart).displayChart ();
+   }
+ 
     public List<Job> ReadFromCSV(String CSVFileName)
     {
     	List<Job> Jobs  = new ArrayList<Job>();
@@ -205,6 +281,7 @@ public class JobDaoImp {
         JavaSparkContext sparkContext = new JavaSparkContext (conf);
         // LOAD DATASETS
         JavaRDD<String> Jobs = sparkContext.textFile ("Wuzzuf_Jobs.csv");
+       
         // TRANSFORMATIONS
         JavaRDD<String> Areas = Jobs
                 .map (JobDaoImp::extractJobArea)
