@@ -30,10 +30,10 @@ public class main {
         //_JobDaoImp.Getsummary ("Wuzzuf_Jobs.csv");
         
         //Finding out the most popular job titles & Display bar chart
-        //_JobDaoImp.GetPopularJobTitle();
+        _JobDaoImp.GetPopularJobTitle();
         
         //Finding out the most popular job Areas & Display bar chart
-        //_JobDaoImp.GetPopularArea();
+        _JobDaoImp.GetPopularArea();
        
 
     }
