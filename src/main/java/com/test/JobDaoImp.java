@@ -197,7 +197,7 @@ public class JobDaoImp {
    }
     
     
-    public DataFrame Getsummary (String path){
+    public String[][] Getsummary (String path){
         //Display structure and summary of the data using Smile Dependency
          DataFrame df= null;
         try
@@ -227,7 +227,7 @@ public class JobDaoImp {
 	    // TODO Auto-generated catch block
 	    System.err.println("Error" + ex.getMessage());
 	}
-        return df;
+        return df.summary().toStrings(df.nrows());
     }  
     private static int[] encodeCategory(DataFrame df, String columnName) {
         //Encoding columns to numerical values
