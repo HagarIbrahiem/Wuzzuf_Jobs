@@ -268,17 +268,9 @@ public class JobDaoImp {
         
     }
 
-    public  void GetPopularArea() throws IOException {
-        Logger.getLogger ("org").setLevel (Level.ERROR);
-        // CREATE SPARK CONTEXT
-        SparkConf conf = new SparkConf ().setAppName ("AreaCounts").setMaster ("local[3]");
-        JavaSparkContext sparkContext = new JavaSparkContext (conf);
-        // LOAD DATASETS
-        JavaRDD<String> Jobs = sparkContext.textFile ("Wuzzuf_Jobs.csv");
-       
+    public   Map<String, Long> GetPopularArea(Dataset<Row> ds)  {
         // TRANSFORMATIONS
-        JavaRDD<String> Areas = Jobs
-                .map (JobDaoImp::extractJobArea)
+        JavaRDD<String> Areas = ds.select("Location").javaRDD().map(m->m.getString(0))
                 .filter (StringUtils::isNotBlank);
        
         System.out.println("======= Areas ============== \n  " );
@@ -294,7 +286,8 @@ public class JobDaoImp {
         //Check if Numer is not repeated , while loop
          System.out.println("======= The Most Popular Area is ( "+ sorted.get(sorted.size()-1).getKey()+" ) With Repeated times of ( "+  sorted.get(sorted.size()-1).getValue()+" ) ============== \n " );
         
-        DisplayJobAreas(AreaCounts);
+      //  DisplayJobAreas(AreaCounts);
+       return AreaCounts;
     }
     private static String extractJobArea(String AreaLine) {
         try {
