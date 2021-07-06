@@ -1,5 +1,6 @@
 package com.test;
 import java.awt.Color;
+
 //import com.sun.rowset.internal.Row;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,14 +27,26 @@ import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
 import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.style.Styler.LegendPosition;
+
 import smile.data.DataFrame;
 //import smile.data.Dataset;
 import smile.data.measure.NominalScale;
 //import smile.data.type.StructType;
 import smile.data.vector.IntVector;
 import smile.io.Read;
-
+import java.util.regex.Pattern;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.ml.feature.StringIndexer;
+import org.apache.spark.ml.feature.StringIndexerModel;
+import org.apache.spark.mllib.clustering.KMeans;
+import org.apache.spark.mllib.clustering.KMeansModel;
+import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.Vectors;
 public class JobDaoImp {
    
 
@@ -335,5 +348,60 @@ public class JobDaoImp {
         chart.addSeries("Series Name : Jobs Areas & counts", Titles, Counts);
 
         new SwingWrapper(chart).displayChart();
+    }
+    public void  Kmean( Dataset<Row> ds) {
+    	StringIndexerModel labelIndexer = new StringIndexer()
+    		       .setInputCol("Company")
+    		       .setOutputCol("new-Company")
+    			  // .setOutputCol("New-Title").setInputCol("Title")
+    			   .fit(ds);
+    	 ds =  labelIndexer.transform(ds);
+    	 StringIndexerModel labelIndexer2 = new StringIndexer()
+    			.setOutputCol("New-Title").setInputCol("Title")
+  			   .fit(ds);
+  	     ds =  labelIndexer2.transform(ds);
+    	 //System.out.println("after factorizzzzzzzzzzzzzzzzzing"+ds.count());
+    	// System.out.println("after factorizzzzzzzzzzzzzzzzzing");
+    	//ds.foreach(m-> System.out.println("comapny"+ m.getDouble(8) + "title" + m.getDouble(9) ));
+    	// System.out.println("after factorizzzzzzzzzzzzzzzzzing"+ds.describe("New-Title"));
+    	JavaRDD<Vector> parsedData = ds.select("New-Title","new-Company").javaRDD().
+    			map(m->Vectors.dense(new double[] { m.getDouble(0),m.getDouble(1)} ));
+//    	    .map(new Function<String, Vector>() {
+//				public Vector call(String v1) throws Exception {
+//					String svalue[] = v1.split(",");
+//		    		double[] values = new double[svalue.length];
+//		    		for (int i = 0; i < values.length; i++) {
+//		    			values[i] = Double.parseDouble(svalue[i]);
+//		    		
+//		    			}
+//		    		return Vectors.dense(values);
+//			   }
+//    		});
+//    		 for(Vector  v: parsedData.top(20)) {
+//    			 System.out.println("max"+v.argmax()); 
+//    		 }
+    		
+    		parsedData.cache();
+    		int numClusters = 10;
+    		int numIterations = 50;
+    		KMeansModel clusters = KMeans.train (parsedData.rdd(), numClusters, numIterations);
+    		System.out.println("Cluster centers:");
+    		for (Vector center : clusters.clusterCenters()) {
+    		System.out.println("" + center);
+    		  
+    		  
+      }
+    		   XYChart chart = new XYChartBuilder().width(800).height(600).build();
+    		   
+    		    // Customize Chart
+    		    chart.getStyler().setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Scatter);
+    		    chart.getStyler().setChartTitleVisible(false);
+    		    chart.getStyler().setLegendPosition(LegendPosition.InsideSW);
+    		    chart.getStyler().setMarkerSize(16);
+ 		  List<Double> titlles =  ds.select("New-Title").javaRDD().map(m->m.getDouble(0)).collect( );
+ 		  List<Double> comapnys =  ds.select("new-Company").javaRDD().map(m->m.getDouble(0)).collect();
+ 		  System.out.println("sizeeeeeeeeeeeeeeeeeeeeeeeeeee"+titlles.size()+"  "+comapnys.size());
+ 		  chart.addSeries("tilte comapny",titlles,comapnys);
+ 		  new SwingWrapper(chart).displayChart();
     }
 }
